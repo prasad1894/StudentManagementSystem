@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Import Students</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        nav {
+            background: #212529;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-bottom: 15px;
+        }
+
+        .info {
+            background: #cff4fc;
+            color: #055160;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .success {
+            background: #d1e7dd;
+            color: #0f5132;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 15px 0 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: #0d6efd;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0b5ed7;
+        }
+
+        .format {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        code {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <nav>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'student_list' %}">Students</a>
+        <a href="{% url 'student_import' %}">Import Students</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </nav>
+
+    <div class="box">
+
+        <h1>Import Students</h1>
+
+        <div class="info">
+            <strong>Automatic Login Details</strong><br>
+            Username = Roll Number<br>
+            Default Password = Roll Number<br>
+            Students must change their password after first login.
+        </div>
+
+        {% if error %}
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if success_count %}
+            <div class="success">
+                <strong>{{ success_count }}</strong>
+                student(s) imported successfully.
+                {% if skipped_count %}
+                    <br>
+                    <strong>{{ skipped_count }}</strong>
+                    student(s) skipped.
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if skipped_count and not success_count %}
+            <div class="error">
+                <strong>{{ skipped_count }}</strong>
+                student(s) were skipped.
+                Check roll numbers and class names.
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <label>
+                Select CSV File
+            </label>
+
+            <input
+                type="file"
+                name="csv_file"
+                accept=".csv"
+                required
+            >
+
+            <button type="submit">
+                Import Students
+            </button>
+
+        </form>
+
+        <div class="format">
+
+            <strong>Required CSV columns:</strong>
+
+            <br><br>
+
+            <code>
+                roll_number,name,email,phone,class_section,admission_year
+            </code>
+
+            <br><br>
+
+            <strong>Example:</strong>
+
+            <br><br>
+
+            <code>
+                248T1A4201,Ravi,ravi@gmail.com,9876543210,2nd Year CSM-A,2024
+            </code>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

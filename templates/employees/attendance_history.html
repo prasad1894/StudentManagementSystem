@@ -1,0 +1,492 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Attendance History{% endblock %}
+
+{% block content %}
+
+<style>
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .history-header h1 {
+        margin: 0 0 5px;
+    }
+
+    .history-header p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .history-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .history-links a {
+        display: inline-block;
+        padding: 9px 14px;
+        border-radius: 7px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .history-links a:hover {
+        background: #bfdbfe;
+    }
+
+    .history-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .history-stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow);
+    }
+
+    .history-stat h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 600;
+    }
+
+    .history-stat h2 {
+        margin: 0;
+        font-size: 28px;
+        color: var(--primary);
+    }
+
+    .history-stat.present h2 {
+        color: var(--success);
+    }
+
+    .history-stat.absent h2 {
+        color: var(--danger);
+    }
+
+    .history-stat.percentage h2 {
+        color: var(--info);
+    }
+
+    .filter-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 22px;
+        box-shadow: var(--shadow);
+    }
+
+    .filter-card h2 {
+        margin: 0 0 15px;
+        font-size: 18px;
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr) auto auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .filter-group label {
+        margin-bottom: 6px;
+    }
+
+    .filter-form select,
+    .filter-form input {
+        width: 100%;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .clear-btn {
+        display: inline-block;
+        padding: 10px 15px;
+        border-radius: 7px;
+        background: #e5e7eb;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .clear-btn:hover {
+        background: #d1d5db;
+    }
+
+    .history-section {
+        margin-bottom: 25px;
+    }
+
+    .history-section h2 {
+        margin: 0 0 14px;
+        font-size: 21px;
+    }
+
+    .status-present {
+        color: var(--success);
+        font-weight: 700;
+    }
+
+    .status-absent {
+        color: var(--danger);
+        font-weight: 700;
+    }
+
+    .percentage-good {
+        color: var(--success);
+        font-weight: 700;
+    }
+
+    .percentage-low {
+        color: var(--danger);
+        font-weight: 700;
+    }
+
+    .empty-message {
+        padding: 18px;
+        background: var(--info-light);
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        color: #075985;
+    }
+
+    @media (max-width: 900px) {
+        .history-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .filter-buttons {
+            grid-column: span 2;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .history-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .history-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-buttons {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="history-header">
+    <div>
+        <h1>Attendance History</h1>
+        <p>View, filter, and analyze student attendance records.</p>
+    </div>
+
+    <div class="history-links">
+        <a href="{% url 'dashboard' %}">← Dashboard</a>
+        <a href="{% url 'attendance' %}">Mark Attendance</a>
+    </div>
+</div>
+
+
+<!-- Attendance Statistics -->
+<div class="history-stats">
+
+    <div class="history-stat">
+        <h3>Total Records</h3>
+        <h2>{{ total_records }}</h2>
+    </div>
+
+    <div class="history-stat present">
+        <h3>Present</h3>
+        <h2>{{ present_count }}</h2>
+    </div>
+
+    <div class="history-stat absent">
+        <h3>Absent</h3>
+        <h2>{{ absent_count }}</h2>
+    </div>
+
+    <div class="history-stat percentage">
+        <h3>Attendance Percentage</h3>
+        <h2>{{ attendance_percentage|floatformat:2 }}%</h2>
+    </div>
+
+</div>
+
+
+<!-- Filters -->
+<div class="filter-card">
+
+    <h2>Filter Attendance</h2>
+
+    <form method="get" class="filter-form">
+
+        <div class="filter-group">
+            <label for="class_id">Class</label>
+
+            <select name="class_id" id="class_id">
+
+                <option value="">All Classes</option>
+
+                {% for class in assigned_classes %}
+
+                    <option
+                        value="{{ class.id }}"
+                        {% if selected_class_id == class.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ class }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+
+        <div class="filter-group">
+            <label for="subject_id">Subject</label>
+
+            <select name="subject_id" id="subject_id">
+
+                <option value="">All Subjects</option>
+
+                {% for subject in subjects %}
+
+                    <option
+                        value="{{ subject.id }}"
+                        {% if selected_subject_id == subject.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ subject.code }} - {{ subject.name }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+
+        <div class="filter-group">
+            <label for="date">Date</label>
+
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="{{ selected_date|default:'' }}"
+            >
+        </div>
+
+
+        <div class="filter-buttons">
+            <button type="submit" class="btn">
+                Filter
+            </button>
+
+            <a href="{% url 'attendance_history' %}" class="clear-btn">
+                Clear
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- Attendance Records -->
+<div class="history-section">
+
+    <h2>Attendance Records</h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Class</th>
+                    <th>Roll Number</th>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for record in records %}
+
+                    <tr>
+
+                        <td>
+                            {{ record.date|date:"d-m-Y" }}
+                        </td>
+
+                        <td>
+                            {{ record.student.class_section }}
+                        </td>
+
+                        <td>
+                            <strong>{{ record.student.roll_number }}</strong>
+                        </td>
+
+                        <td>
+                            {{ record.student.name }}
+                        </td>
+
+                        <td>
+                            {% if record.subject %}
+                                {{ record.subject.code }}
+                            {% else %}
+                                <span>Overall Day</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            {% if record.status == 'PRESENT' %}
+
+                                <span class="status-present">
+                                    Present
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-absent">
+                                    Absent
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-message">
+                                No attendance records found.
+                            </div>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Daily Summary -->
+<div class="history-section">
+
+    <h2>Overall Day Attendance</h2>
+
+    {% if daily_summary %}
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Total Students</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for day in daily_summary %}
+
+                        <tr>
+
+                            <td>
+                                <strong>{{ day.date|date:"d/m/Y" }}</strong>
+                            </td>
+
+                            <td>
+                                {{ day.total_students }}
+                            </td>
+
+                            <td>
+                                <span class="status-present">
+                                    {{ day.present }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="status-absent">
+                                    {{ day.absent }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="percentage-good">
+                                    {{ day.percentage|floatformat:1 }}%
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-message">
+            No daily attendance records found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

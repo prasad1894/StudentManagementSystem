@@ -1,0 +1,108 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Class Management{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Class Management</h1>
+        <p>Manage classes, faculty assignments, and student strength.</p>
+    </div>
+
+    <a href="{% url 'class_create' %}" class="btn btn-success">
+        + Add Class
+    </a>
+</div>
+
+<div class="card">
+
+    {% if classes %}
+
+    <div class="table-container">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Branch</th>
+                    <th>Section</th>
+                    <th>Faculty</th>
+                    <th>Students</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for class_section in classes %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ class_section.get_year_display }}</strong>
+                    </td>
+
+                    <td>
+                        {{ class_section.branch }}
+                    </td>
+
+                    <td>
+                        {{ class_section.section }}
+                    </td>
+
+                    <td>
+                        {% for profile in class_section.faculty.all %}
+
+                            <div style="margin-bottom: 4px;">
+                                {{ profile.user.username }}
+                            </div>
+
+                        {% empty %}
+
+                            <span style="color: var(--muted);">
+                                No faculty assigned
+                            </span>
+
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <strong>{{ class_section.students.count }}</strong>
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a href="{% url 'class_edit' class_section.id %}">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'class_delete' class_section.id %}"
+                               style="background: var(--danger-light); color: #991b1b;">
+                                Delete
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            No classes found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Subject Management{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Subject Management</h1>
+        <p>Manage subjects, classes, and faculty assignments.</p>
+    </div>
+
+    <a href="{% url 'subject_create' %}" class="btn btn-success">
+        + Add Subject
+    </a>
+</div>
+
+<div class="card">
+
+    {% if subjects %}
+
+    <div class="table-container">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Subject Code</th>
+                    <th>Subject Name</th>
+                    <th>Class</th>
+                    <th>Faculty</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for subject in subjects %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ subject.code }}</strong>
+                    </td>
+
+                    <td>
+                        {{ subject.name }}
+                    </td>
+
+                    <td>
+                        {{ subject.class_section }}
+                    </td>
+
+                    <td>
+                        {% if subject.faculty %}
+                            {{ subject.faculty.user.username }}
+                        {% else %}
+                            <span style="color: var(--muted);">
+                                Not Assigned
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a href="{% url 'subject_edit' subject.pk %}">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'subject_delete' subject.pk %}"
+                               style="background: var(--danger-light); color: #991b1b;">
+                                Delete
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5">
+                        <div class="alert alert-info" style="margin: 0;">
+                            No subjects found.
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

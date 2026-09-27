@@ -1,0 +1,1223 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Period Attendance{% endblock %}
+
+{% block content %}
+
+<style>
+    .period-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .period-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+    }
+
+    .period-header {
+        text-align: center;
+        margin-bottom: 22px;
+    }
+
+    .period-header h1 {
+        margin-bottom: 6px;
+    }
+
+    .period-header p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .period-filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .period-field label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .period-field select,
+    .period-field input {
+        width: 100%;
+        height: 44px;
+    }
+
+    .period-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .period-btn {
+        width: 100%;
+        min-height: 44px;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .load-btn {
+        background: var(--primary);
+    }
+
+    .load-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .save-btn {
+        background: var(--success);
+    }
+
+    .save-btn:hover {
+        background: #166534;
+    }
+
+    .copy-btn {
+        background: #6d28d9;
+    }
+
+    .copy-btn:hover {
+        background: #5b21b6;
+    }
+
+    .attendance-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .attendance-stat {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+    }
+
+    .attendance-stat h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .attendance-stat span {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .stat-total span {
+        color: var(--primary);
+    }
+
+    .stat-present span {
+        color: var(--success);
+    }
+
+    .stat-absent span {
+        color: var(--danger);
+    }
+
+    .student-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .student-button {
+        background: white;
+        color: #222;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 12px;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .student-button:hover {
+        border-color: #999;
+    }
+
+    .student-button.present {
+        background: #ffffff;
+        color: #222;
+        border-color: #d5d5d5;
+    }
+
+    .student-button.absent {
+        background: #ef4444;
+        color: white;
+        border-color: #dc2626;
+    }
+
+    .student-button.selected-present {
+        background: #22c55e;
+        color: white;
+        border-color: #16a34a;
+    }
+
+    .student-name {
+        font-weight: 600;
+    }
+
+    .student-roll {
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .report-box {
+        margin-top: 20px;
+    }
+
+    .report-box textarea {
+        width: 100%;
+        min-height: 160px;
+        resize: vertical;
+        font-family: Consolas, monospace;
+        font-size: 13px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media (max-width: 800px) {
+        .period-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .attendance-stats {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 550px) {
+        .period-card {
+            padding: 15px;
+        }
+
+        .attendance-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .student-grid {
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+        }
+
+        .student-button {
+            min-height: 60px;
+        }
+
+
+        .attendance-mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 18px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f5f5f5;
+            color: #333;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .mode-btn:hover {
+            opacity: 0.9;
+        }
+    }
+
+    .student-name {
+        font-size: 6px !important;
+        line-height: 1.1 !important;
+        font-weight: 300;
+    }
+
+    .student-roll {
+        font-size: 15px !important;
+        line-height: 1.2 !important;
+        margin-top: 3px;
+        font-weight: 600;
+    }
+
+    .report-box {
+        margin-top: 20px;
+    }
+</style>
+
+
+<div class="period-container">
+
+    <div class="period-card">
+
+        <div class="period-header">
+            <h1>📚 Period Attendance</h1>
+            <p>Take subject-wise attendance for a selected class and date.</p>
+        </div>
+
+
+        <!-- Filters -->
+
+        <div class="period-filters">
+
+            <div class="period-field">
+
+                <label for="classSelect">
+                    Class
+                </label>
+
+                <select id="classSelect">
+
+                    <option value="">
+                        Select Class
+                    </option>
+
+                    {% for class in assigned_classes %}
+
+                        <option value="{{ class.id }}">
+                            {{ class }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="period-field">
+
+                <label for="subjectSelect">
+                    Subject
+                </label>
+
+                <select id="subjectSelect">
+
+                    <option value="">
+                        Select Subject
+                    </option>
+
+                    {% for subject in subjects %}
+
+                        <option
+                            value="{{ subject.id }}"
+                            data-class="{{ subject.class_section_id }}"
+                        >
+                            {{ subject.code }} - {{ subject.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="period-field">
+
+                <label for="attendanceDate">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="attendanceDate"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- Load Students -->
+
+        <div class="period-actions">
+
+            <button
+                type="button"
+                class="period-btn load-btn"
+                onclick="loadPeriodStudents()"
+            >
+                Load Students
+            </button>
+
+
+            <div class="attendance-mode-buttons">
+                <button type="button" id="absentModeBtn" class="mode-btn active" onclick="setAttendanceMode('absent')">
+                    Mark Absentees
+                </button>
+
+                <button type="button" id="presentModeBtn" class="mode-btn" onclick="setAttendanceMode('present')">
+                    Mark Presentees
+                </button>
+            </div>
+
+
+        </div>
+
+
+        <!-- Statistics -->
+
+        <div class="attendance-stats">
+
+            <div class="attendance-stat stat-total">
+                <h3>Total Students</h3>
+                <span id="totalCount">0</span>
+            </div>
+
+            <div class="attendance-stat stat-present">
+                <h3>Present</h3>
+                <span id="presentCount">0</span>
+            </div>
+
+            <div class="attendance-stat stat-absent">
+                <h3>Absent</h3>
+                <span id="absentCount">0</span>
+            </div>
+
+        </div>
+
+
+        <!-- Students -->
+
+        <div
+            id="studentGrid"
+            class="student-grid"
+        >
+        </div>
+
+
+        <!-- Action Buttons -->
+
+        <div class="period-actions">
+
+            <button
+                type="button"
+                class="period-btn copy-btn"
+                onclick="copyPeriodReport()"
+            >
+                Copy Attendance Report
+            </button>
+
+            <button
+                type="button"
+                class="period-btn save-btn"
+                onclick="savePeriodAttendance()"
+            >
+                💾 Save Period Attendance
+            </button>
+
+        </div>
+
+
+        <!-- Report -->
+
+        <div class="report-box">
+
+            <textarea
+                id="reportPreview"
+                readonly
+                placeholder="Attendance report will appear here..."
+            ></textarea>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% csrf_token %}
+
+
+<script>
+
+const csrfToken = document.querySelector(
+    '[name=csrfmiddlewaretoken]'
+).value;
+
+let currentStudents = [];
+let absentStudents = new Set();
+let attendanceMode = "absent";
+
+const studentAPI = "/api/attendance-app/students/";
+
+
+/* =========================================================
+   CLASS CHANGE
+========================================================= */
+
+document.getElementById("classSelect").addEventListener(
+    "change",
+    function () {
+
+        const selectedClass = this.value;
+        const subjectSelect =
+            document.getElementById("subjectSelect");
+
+        Array.from(subjectSelect.options).forEach(option => {
+
+            if (!option.value) {
+                option.style.display = "";
+                return;
+            }
+
+            if (option.dataset.class === selectedClass) {
+                option.style.display = "";
+            } else {
+                option.style.display = "none";
+            }
+
+        });
+
+        subjectSelect.value = "";
+
+        clearStudents();
+    }
+);
+
+
+/* =========================================================
+   SUBJECT CHANGE
+========================================================= */
+
+document.getElementById("subjectSelect").addEventListener(
+    "change",
+    function () {
+
+        clearStudents();
+
+    }
+);
+
+
+/* =========================================================
+   CLEAR STUDENTS
+========================================================= */
+
+function clearStudents() {
+
+    currentStudents = [];
+
+    absentStudents.clear();
+
+    attendanceMode = "absent";
+
+    document.getElementById("absentModeBtn").classList.add("active");
+    document.getElementById("presentModeBtn").classList.remove("active");
+
+    document.getElementById("studentGrid").innerHTML = "";
+
+    document.getElementById("totalCount").textContent = "0";
+    document.getElementById("presentCount").textContent = "0";
+    document.getElementById("absentCount").textContent = "0";
+
+    document.getElementById("reportPreview").value = "";
+
+}
+
+
+/* =========================================================
+   GET FULL DATABASE ROLL NUMBER
+========================================================= */
+
+function getStudentRoll(student) {
+
+    return String(
+        student.roll_number ||
+        student.roll ||
+        student.roll_no ||
+        student.rollNo ||
+        student.rollno ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   DISPLAY ROLL NUMBER
+
+   Normal:
+   258T1A4201 -> 01
+
+   Lateral Entry:
+   268T5A4201 -> LE-01
+========================================================= */
+
+function getDisplayRoll(fullRoll) {
+
+    fullRoll = String(fullRoll).trim();
+
+    if (!fullRoll) {
+        return "";
+    }
+
+    if (fullRoll.includes("T5A")) {
+
+        return "LE-" + fullRoll.slice(-2);
+
+    }
+
+    return fullRoll.slice(-2);
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+
+   2026-09-27 -> 27/09/2026
+========================================================= */
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "";
+    }
+
+    const parts = dateValue.split("-");
+
+    if (parts.length !== 3) {
+        return dateValue;
+    }
+
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+}
+
+
+function setAttendanceMode(mode) {
+    attendanceMode = mode;
+
+    const absentModeBtn = document.getElementById("absentModeBtn");
+    const presentModeBtn = document.getElementById("presentModeBtn");
+
+    if (mode === "absent") {
+        absentModeBtn.classList.add("active");
+        presentModeBtn.classList.remove("active");
+
+        // Everyone starts as Present
+        absentStudents.clear();
+
+    } else {
+        presentModeBtn.classList.add("active");
+        absentModeBtn.classList.remove("active");
+
+        // Everyone starts as Absent
+        absentStudents.clear();
+
+        currentStudents.forEach(student => {
+            const fullRoll = getStudentRoll(student);
+
+            if (fullRoll) {
+                absentStudents.add(fullRoll);
+            }
+        });
+    }
+
+    renderStudents();
+    updateCounts();
+}
+
+
+/* =========================================================
+   LOAD STUDENTS
+========================================================= */
+
+function loadPeriodStudents() {
+
+    const classId =
+        document.getElementById("classSelect").value;
+
+    const subjectId =
+        document.getElementById("subjectSelect").value;
+
+    const date =
+        document.getElementById("attendanceDate").value;
+
+
+    if (!classId) {
+
+        alert("Please select a class.");
+
+        return;
+
+    }
+
+
+    if (!subjectId) {
+
+        alert("Please select a subject.");
+
+        return;
+
+    }
+
+
+    if (!date) {
+
+        alert("Please select a date.");
+
+        return;
+
+    }
+
+
+    fetch(
+        studentAPI + "?class_id=" + encodeURIComponent(classId)
+    )
+
+    .then(response => {
+
+        if (!response.ok) {
+            throw new Error("Unable to load students.");
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        currentStudents =
+            Array.isArray(data)
+                ? data
+                : (data.students || []);
+
+        absentStudents.clear();
+
+        renderStudents();
+
+        updateCounts();
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        alert("Unable to load students.");
+
+    });
+
+}
+
+
+/* =========================================================
+   RENDER STUDENTS
+========================================================= */
+
+function renderStudents() {
+    const grid = document.getElementById("studentGrid");
+    grid.innerHTML = "";
+
+    currentStudents.forEach(student => {
+        const fullRoll = getStudentRoll(student);
+        const displayRoll = getDisplayRoll(fullRoll);
+
+        const button = document.createElement("button");
+        button.type = "button";
+
+        if (attendanceMode === "present") {
+            // Mark Presentees mode
+            if (absentStudents.has(fullRoll)) {
+                button.className = "student-button present";
+            } else {
+                button.className = "student-button selected-present";
+            }
+        } else {
+            // Mark Absentees mode
+            if (absentStudents.has(fullRoll)) {
+                button.className = "student-button absent";
+            } else {
+                button.className = "student-button present";
+            }
+        }
+
+        button.dataset.roll = fullRoll;
+
+        const name = document.createElement("div");
+        name.className = "student-name";
+        name.textContent = student.name;
+
+        const roll = document.createElement("div");
+        roll.className = "student-roll";
+        roll.textContent = displayRoll;
+
+        button.appendChild(name);
+        button.appendChild(roll);
+
+        button.onclick = function () {
+            toggleStudent(fullRoll, button);
+        };
+
+        grid.appendChild(button);
+    });
+}
+
+
+/* =========================================================
+   TOGGLE PRESENT / ABSENT
+
+   Present -> Absent
+   Absent -> Present
+========================================================= */
+
+function toggleStudent(fullRoll, button) {
+    fullRoll = String(fullRoll).trim();
+
+    if (!fullRoll) return;
+
+    if (attendanceMode === "absent") {
+
+        // Mark Absentees mode
+        if (absentStudents.has(fullRoll)) {
+            // Absent → Present
+            absentStudents.delete(fullRoll);
+
+            button.classList.remove("absent");
+            button.classList.add("present");
+
+        } else {
+            // Present → Absent
+            absentStudents.add(fullRoll);
+
+            button.classList.remove("present");
+            button.classList.add("absent");
+        }
+
+    } else {
+
+        // Mark Presentees mode
+        if (absentStudents.has(fullRoll)) {
+            // Absent → Present
+            absentStudents.delete(fullRoll);
+
+            button.classList.remove("present");
+            button.classList.add("selected-present");
+
+        } else {
+            // Present → Absent
+            absentStudents.add(fullRoll);
+
+            button.classList.remove("selected-present");
+            button.classList.add("present");
+        }
+    }
+
+    updateCounts();
+}
+
+
+/* =========================================================
+   UPDATE COUNTS + LIVE REPORT
+========================================================= */
+
+function updateCounts() {
+
+    const total =
+        currentStudents.length;
+
+    const absent =
+        absentStudents.size;
+
+    const present =
+        total - absent;
+
+
+    document.getElementById(
+        "totalCount"
+    ).textContent = total;
+
+
+    document.getElementById(
+        "presentCount"
+    ).textContent = present;
+
+
+    document.getElementById(
+        "absentCount"
+    ).textContent = absent;
+
+
+    /*
+     * LIVE REPORT UPDATE
+     */
+    if (currentStudents.length > 0) {
+
+        document.getElementById(
+            "reportPreview"
+        ).value = generatePeriodReport();
+
+    }
+
+}
+
+
+/* =========================================================
+   GET PRESENT FULL ROLL NUMBERS
+========================================================= */
+
+function getPresentRollNumbers() {
+    return currentStudents
+        .map(student => getStudentRoll(student))
+        .filter(fullRoll => fullRoll && !absentStudents.has(fullRoll))
+        .sort((a, b) => {
+            return a.localeCompare(b, undefined, {
+                numeric: true,
+                sensitivity: "base"
+            });
+        });
+}
+
+
+/* =========================================================
+   GET ABSENT FULL ROLL NUMBERS
+========================================================= */
+
+function getAbsentRollNumbers() {
+    return Array.from(absentStudents).sort((a, b) => {
+        return a.localeCompare(b, undefined, {
+            numeric: true,
+            sensitivity: "base"
+        });
+    });
+}
+
+
+/* =========================================================
+   GET DISPLAY ROLLS FOR REPORT
+========================================================= */
+
+function getDisplayRolls(rollNumbers) {
+
+    return rollNumbers.map(fullRoll =>
+        getDisplayRoll(fullRoll)
+    );
+
+}
+
+
+/* =========================================================
+   GENERATE PERIOD REPORT
+
+   Report uses:
+   01, 02, 03...
+   LE-01, LE-02...
+
+   Django save still uses:
+   258T1A4201
+   268T5A4201
+========================================================= */
+
+function generatePeriodReport() {
+
+    const classSelect =
+        document.getElementById("classSelect");
+
+    const subjectSelect =
+        document.getElementById("subjectSelect");
+
+    const date =
+        document.getElementById("attendanceDate");
+
+
+    if (
+        classSelect.selectedIndex < 0 ||
+        subjectSelect.selectedIndex < 0
+    ) {
+        return "";
+    }
+
+
+    const className =
+        classSelect.options[
+            classSelect.selectedIndex
+        ].text;
+
+
+    const subjectName =
+        subjectSelect.options[
+            subjectSelect.selectedIndex
+        ].text;
+
+
+    const presentFull =
+        getPresentRollNumbers();
+
+
+    const absentFull =
+        getAbsentRollNumbers();
+
+
+    const present =
+        getDisplayRolls(presentFull);
+
+
+    const absent =
+        getDisplayRolls(absentFull);
+
+
+    let absentText = "None";
+
+
+    if (absent.length > 0) {
+
+        absentText =
+            absent.join(", ");
+
+    }
+
+
+    return (
+        "Period Attendance Report\n\n" +
+
+        "Class: " +
+        className +
+        "\n" +
+
+        "Subject: " +
+        subjectName +
+        "\n" +
+
+        "Date: " +
+        formatDate(date.value) +
+        "\n\n" +
+
+        "Total Students: " +
+        currentStudents.length +
+        "\n" +
+
+        "Present: " +
+        present.length +
+        "\n" +
+
+        "Absent: " +
+        absent.length +
+        "\n\n" +
+
+        "Absent Students:\n" +
+
+        absentText
+    );
+
+}
+
+
+/* =========================================================
+   COPY REPORT
+========================================================= */
+
+function copyPeriodReport() {
+
+    if (!currentStudents.length) {
+
+        alert(
+            "Please load students first."
+        );
+
+        return;
+
+    }
+
+
+    const report =
+        generatePeriodReport();
+
+
+    /*
+     * Make sure preview is also updated.
+     */
+    document.getElementById(
+        "reportPreview"
+    ).value = report;
+
+
+    navigator.clipboard.writeText(report)
+
+        .then(() => {
+
+            alert(
+                "Attendance report copied successfully."
+            );
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            alert(
+                "Report generated. Please copy it manually."
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   SAVE ATTENDANCE TO DJANGO
+========================================================= */
+
+function savePeriodAttendance() {
+
+    const classId =
+        document.getElementById("classSelect").value;
+
+    const subjectId =
+        document.getElementById("subjectSelect").value;
+
+    const date =
+        document.getElementById("attendanceDate").value;
+
+
+    if (!classId || !subjectId || !date) {
+
+        alert(
+            "Please select class, subject, and date."
+        );
+
+        return;
+
+    }
+
+
+    if (!currentStudents.length) {
+
+        alert(
+            "Please load students first."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * IMPORTANT:
+     * These are FULL database roll numbers.
+     */
+    const presentRollNumbers =
+        getPresentRollNumbers();
+
+
+    const absentRollNumbers =
+        getAbsentRollNumbers();
+
+
+    fetch(
+        "/api/attendance-app/save/",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json",
+
+                "X-CSRFToken":
+                    csrfToken
+
+            },
+
+            body: JSON.stringify({
+
+                class_id:
+                    classId,
+
+                subject_id:
+                    subjectId,
+
+                date:
+                    date,
+
+                present_roll_numbers:
+                    presentRollNumbers,
+
+                absent_roll_numbers:
+                    absentRollNumbers
+
+            })
+
+        }
+
+    )
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Attendance save failed."
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        alert(
+            data.message ||
+            "Period attendance saved successfully."
+        );
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        alert(
+            "Unable to save attendance."
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   INITIAL DATE
+
+   Automatically set today's date
+========================================================= */
+
+document.getElementById(
+    "attendanceDate"
+).value =
+    new Date().toISOString().split("T")[0];
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,469 @@
+/* =========================================
+   Employee Task & Attendance Management
+   Professional UI Theme
+   ========================================= */
+
+:root {
+    --primary: #1e3a8a;
+    --primary-dark: #172554;
+    --primary-light: #dbeafe;
+
+    --success: #15803d;
+    --success-light: #dcfce7;
+
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+
+    --info: #0369a1;
+    --info-light: #e0f2fe;
+
+    --dark: #111827;
+    --text: #374151;
+    --muted: #6b7280;
+
+    --background: #f3f6fb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+
+    --radius: 10px;
+    --shadow: 0 4px 15px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------- Global ---------- */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+/* ---------- Navigation ---------- */
+
+nav {
+    background: var(--primary-dark);
+    padding: 0 28px;
+    min-height: 64px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+nav a {
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+nav a:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Main Container ---------- */
+
+.container {
+    width: min(1200px, calc(100% - 32px));
+    margin: 30px auto;
+}
+
+/* ---------- Headings ---------- */
+
+h1 {
+    margin: 0 0 24px;
+    color: var(--dark);
+    font-size: 30px;
+}
+
+h2 {
+    color: var(--dark);
+    margin-top: 0;
+}
+
+h3 {
+    color: var(--dark);
+}
+
+/* ---------- Cards ---------- */
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.card h2,
+.card h3 {
+    margin-top: 0;
+}
+
+/* ---------- Dashboard Cards ---------- */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.dashboard-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.dashboard-card .number {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* ---------- Tables ---------- */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+}
+
+th {
+    background: #f8fafc;
+    color: var(--dark);
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+    padding: 13px 15px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+
+td {
+    padding: 13px 15px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* ---------- Buttons ---------- */
+
+button,
+.btn,
+.action-btn {
+    display: inline-block;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--primary);
+    color: #ffffff;
+    transition: 0.2s ease;
+}
+
+button:hover,
+.btn:hover,
+.action-btn:hover {
+    background: var(--primary-dark);
+    color: #ffffff;
+}
+
+.btn-success {
+    background: var(--success);
+}
+
+.btn-success:hover {
+    background: #166534;
+}
+
+.btn-danger {
+    background: var(--danger);
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.btn-warning {
+    background: var(--warning);
+}
+
+.btn-warning:hover {
+    background: #b45309;
+}
+
+.btn-secondary {
+    background: #6b7280;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+/* ---------- Forms ---------- */
+
+form {
+    margin: 0;
+}
+
+form p {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #ffffff;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.10);
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* ---------- Status ---------- */
+
+.status-active,
+.status-present {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.status-inactive,
+.status-absent {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.status-pending {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+/* ---------- Alerts ---------- */
+
+.alert {
+    padding: 12px 15px;
+    border-radius: 7px;
+    margin-bottom: 18px;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background: var(--success-light);
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.alert-danger {
+    background: var(--danger-light);
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.alert-warning {
+    background: var(--warning-light);
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.alert-info {
+    background: var(--info-light);
+    color: #075985;
+    border-color: #bae6fd;
+}
+
+/* ---------- Action Links ---------- */
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.actions a {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.actions a:hover {
+    background: #bfdbfe;
+}
+
+/* ---------- Page Header ---------- */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+/* ---------- Quick Links ---------- */
+
+.quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+/* ---------- Login ---------- */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    width: min(420px, 100%);
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--border);
+}
+
+.login-card h1 {
+    text-align: center;
+    font-size: 26px;
+}
+
+.login-card button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* ---------- Footer ---------- */
+
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
+
+    nav {
+        padding: 10px 15px;
+        flex-wrap: wrap;
+        min-height: auto;
+    }
+
+    nav a {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    .container {
+        width: min(100% - 20px, 1200px);
+        margin: 20px auto;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        min-width: 700px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+}

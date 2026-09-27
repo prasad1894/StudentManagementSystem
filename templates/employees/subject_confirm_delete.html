@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Subject</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .subject-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .cancel {
+            margin-left: 10px;
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Delete Subject</h2>
+
+    <p>Are you sure you want to delete this subject?</p>
+
+    <div class="subject-info">
+        <strong>{{ subject.code }}</strong> -
+        {{ subject.name }}
+
+        <br><br>
+
+        Class:
+        {{ subject.class_section }}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit">
+            Yes, Delete
+        </button>
+
+        <a href="{% url 'subject_list' %}" class="cancel">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+</body>
+</html>

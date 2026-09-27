@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Subject</title>
+
+```
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: #f4f6f9;
+        padding: 25px;
+    }
+
+    .container {
+        max-width: 650px;
+        margin: auto;
+    }
+
+    nav {
+        background: #212529;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin-right: 20px;
+        font-weight: bold;
+    }
+
+    .form-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 7px;
+        font-weight: bold;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 18px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        background: #0d6efd;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #0b5ed7;
+    }
+
+    .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .help {
+        color: #666;
+        margin-bottom: 20px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<nav>
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <a href="{% url 'subject_list' %}">Subjects</a>
+    <a href="{% url 'faculty_list' %}">Faculty</a>
+    <a href="{% url 'student_list' %}">Students</a>
+    <a href="{% url 'logout' %}">Logout</a>
+</nav>
+
+<div class="form-box">
+
+    <h1>Add Subject</h1>
+
+    <p class="help">
+        Create a subject and assign it to a class and faculty member.
+    </p>
+
+    {% if form.errors %}
+        <div class="error">
+            Please correct the errors below.
+        </div>
+    {% endif %}
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Create Subject
+        </button>
+
+    </form>
+
+</div>
+```
+
+</div>
+
+</body>
+</html>

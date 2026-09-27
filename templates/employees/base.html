@@ -1,0 +1,53 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Employee Management System{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'employees/css/style.css' %}">
+</head>
+
+<body>
+
+<nav>
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+
+    {% if request.user.profile.role == 'ADMIN' %}
+        <a href="{% url 'faculty_list' %}">Faculty</a>
+    {% endif %}
+
+    <a href="{% url 'student_list' %}">Students</a>
+    <a href="{% url 'subject_list' %}">Subjects</a>
+    <a href="{% url 'student_import' %}">Import Students</a>
+    <a href="{% url 'task_list' %}">Tasks</a>
+    <a href="{% url 'leave_list' %}">Leaves</a>
+    <a href="{% url 'attendance' %}">Attendance</a>
+    <a href="{% url 'attendance_history' %}">
+        Attendance History
+    </a>
+
+    {% if request.user.profile.role == 'ADMIN' %}
+        <a href="{% url 'admin:index' %}">Admin</a>
+    {% endif %}
+
+    <a href="{% url 'logout' %}">Logout</a>
+</nav>
+
+<main class="container">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+<footer>
+    <p>Student Task & Attendance Management System</p>
+    <p>© 2026 All Rights Reserved</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Faculty Management{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Faculty Management</h1>
+        <p>Manage faculty accounts, class assignments, and access.</p>
+    </div>
+
+    <a href="{% url 'faculty_create' %}" class="btn btn-success">
+        + Add Faculty
+    </a>
+</div>
+
+<div class="card">
+
+    {% if faculty_profiles %}
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Assigned Classes</th>
+                    <th>Account Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for profile in faculty_profiles %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ profile.user.username }}</strong>
+                    </td>
+
+                    <td>
+                        {{ profile.user.email|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ profile.get_role_display }}
+                    </td>
+
+                    <td>
+                        {% for class_section in profile.assigned_classes.all %}
+                            <div style="margin-bottom: 4px;">
+                                {{ class_section }}
+                            </div>
+                        {% empty %}
+                            <span style="color: var(--muted);">
+                                No classes assigned
+                            </span>
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        {% if profile.user.is_active %}
+                            <span class="status-active">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="status-inactive">
+                                Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a href="{% url 'faculty_assign_classes' profile.pk %}">
+                                Assign Classes
+                            </a>
+
+                            <a href="{% url 'faculty_reset_password' profile.pk %}"
+                               style="background: #ede9fe; color: #5b21b6;">
+                                Reset Password
+                            </a>
+
+                            {% if profile.user.is_active %}
+
+                                <a href="{% url 'faculty_toggle_status' profile.pk %}"
+                                   style="background: var(--danger-light); color: #991b1b;">
+                                    Deactivate
+                                </a>
+
+                            {% else %}
+
+                                <a href="{% url 'faculty_toggle_status' profile.pk %}"
+                                   style="background: var(--success-light); color: #166534;">
+                                    Activate
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+        <div class="alert alert-info">
+            No faculty users found.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

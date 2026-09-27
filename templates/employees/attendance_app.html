@@ -1,0 +1,2591 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Attendance Management{% endblock %}
+
+{% block content %}
+
+<style>
+    /* =========================================================
+       ATTENDANCE PAGE
+    ========================================================= */
+
+    .attendance-container {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .attendance-card {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .attendance-title {
+        text-align: center;
+        margin: 0 0 6px;
+        color: #111827;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .attendance-date {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       CLASS SELECT
+    ========================================================= */
+
+    #classSelect {
+        width: 100%;
+        height: 46px;
+        padding: 0 14px;
+        margin-bottom: 14px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+
+        font-size: 15px;
+        background: #ffffff;
+        color: #111827;
+
+        cursor: pointer;
+        outline: none;
+    }
+
+    #classSelect:focus {
+        border-color: #2563eb;
+    }
+
+    /* =========================================================
+       TOP CONTROLS
+    ========================================================= */
+
+    .attendance-top-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .attendance-action {
+        width: 100%;
+        min-height: 42px;
+
+        padding: 10px 12px;
+
+        border: none;
+        border-radius: 8px;
+
+        cursor: pointer;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        color: #ffffff;
+
+        transition:
+            transform 0.15s ease,
+            opacity 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .attendance-action:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+    .attendance-action:active {
+        transform: translateY(0);
+    }
+
+    .load-btn {
+        background: #16a34a;
+    }
+
+    .manage-btn {
+        background: #2563eb;
+    }
+
+    .report-btn {
+        background: #7c3aed;
+    }
+
+    .save-btn {
+        background: #00897b;
+    }
+
+    .copy-absent-btn {
+        background: #f59e0b;
+    }
+
+    /* =========================================================
+       ATTENDANCE MODE
+    ========================================================= */
+
+    #attendanceMode {
+        width: 100%;
+        min-height: 42px;
+
+        padding: 0 12px;
+
+        border: 1px solid #f44336;
+        border-radius: 8px;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        cursor: pointer;
+        outline: none;
+
+        transition: 0.2s ease;
+    }
+
+    /* =========================================================
+       MANAGE CLASSES
+    ========================================================= */
+
+    #manageBox {
+        margin: 14px 0 18px;
+    }
+
+    #manageBox .card {
+        background: #f8fafc;
+        padding: 18px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+    }
+
+    #manageBox h3 {
+        margin-top: 0;
+        margin-bottom: 14px;
+        color: #111827;
+    }
+
+    #classList > div {
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    #classList button {
+        margin-top: 8px;
+        margin-right: 6px;
+    }
+
+    /* =========================================================
+       ATTENDANCE COUNTS
+    ========================================================= */
+
+    .attendance-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        gap: 12px;
+
+        margin: 18px 0;
+    }
+
+    .attendance-stat {
+        padding: 15px;
+
+        text-align: center;
+
+        border-radius: 10px;
+
+        font-size: 16px;
+        font-weight: 700;
+
+        background: #f8fafc;
+
+        border: 1px solid #e5e7eb;
+    }
+
+    .attendance-stat.present-stat {
+        color: #15803d;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .attendance-stat.absent-stat {
+        color: #dc2626;
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    /* =========================================================
+       STUDENT FILTER
+    ========================================================= */
+
+    .attendance-filter {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+
+        gap: 8px;
+
+        margin: 14px 0 18px;
+    }
+
+    .attendance-filter-btn {
+        min-height: 40px;
+
+        padding: 8px 10px;
+
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+
+        background: #f8fafc;
+        color: #374151;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition: 0.15s ease;
+    }
+
+    .attendance-filter-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .attendance-filter-btn.active-all {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+    }
+
+    .attendance-filter-btn.active-present {
+        background: #16a34a;
+        border-color: #16a34a;
+        color: #ffffff;
+    }
+
+    .attendance-filter-btn.active-absent {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #ffffff;
+    }
+
+    /* =========================================================
+       STUDENT GRID
+    ========================================================= */
+
+    .attendance-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fill, minmax(82px, 1fr));
+
+        gap: 8px;
+
+        margin-top: 10px;
+    }
+
+    .roll {
+        border: 1px solid #d1d5db;
+
+        border-radius: 8px;
+
+        padding: 8px 4px;
+
+        background: #ffffff;
+        color: #111827;
+
+        cursor: pointer;
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        min-height: 64px;
+
+        transition:
+            transform 0.12s ease,
+            box-shadow 0.12s ease;
+    }
+
+    .roll:hover {
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 3px 8px rgba(0, 0, 0, 0.10);
+    }
+
+    /* PRESENT */
+
+    .roll.present {
+        background: #16a34a;
+        border-color: #15803d;
+        color: #ffffff;
+    }
+
+    /* ABSENT */
+
+    .roll.absent {
+        background: #dc2626;
+        border-color: #b91c1c;
+        color: #ffffff;
+    }
+
+    /* STUDENT NAME */
+
+    .student-name {
+        font-size: 6px !important;
+
+        font-weight: 600;
+
+        line-height: 1.15;
+
+        text-align: center;
+
+        margin-bottom: 3px;
+
+        white-space: normal;
+
+        word-break: break-word;
+    }
+
+    /* ROLL NUMBER */
+
+    .student-roll {
+        font-size: 15px !important;
+
+        font-weight: 700;
+
+        line-height: 15px;
+
+        text-align: center;
+    }
+
+    /* =========================================================
+       EMPTY FILTER
+    ========================================================= */
+
+    .filter-empty {
+        width: 100%;
+
+        grid-column: 1 / -1;
+
+        text-align: center;
+
+        padding: 30px 10px;
+
+        color: #6b7280;
+
+        font-size: 14px;
+    }
+
+    /* =========================================================
+       BOTTOM ACTION BUTTONS
+    ========================================================= */
+
+    .attendance-buttons {
+        margin-top: 20px;
+
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 10px;
+    }
+
+    .attendance-buttons .attendance-action {
+        min-height: 44px;
+    }
+
+    /* Save button gets full width */
+
+    .attendance-buttons .save-btn {
+        grid-column: 1 / -1;
+    }
+
+    /* =========================================================
+       REPORT PREVIEW
+    ========================================================= */
+
+    #preview {
+        width: 100%;
+
+        min-height: 150px;
+
+        margin-top: 16px;
+
+        padding: 12px;
+
+        box-sizing: border-box;
+
+        border-radius: 8px;
+
+        border: 1px solid #d1d5db;
+
+        resize: vertical;
+
+        font-family: Consolas, monospace;
+
+        font-size: 13px;
+
+        background: #f9fafb;
+
+        color: #111827;
+
+        outline: none;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 768px) {
+
+        .attendance-card {
+            padding: 16px;
+        }
+
+        .attendance-title {
+            font-size: 24px;
+        }
+
+        .attendance-grid {
+            grid-template-columns:
+                repeat(auto-fill, minmax(65px, 1fr));
+
+            gap: 6px;
+        }
+
+        .roll {
+            min-height: 60px;
+        }
+
+    }
+
+    @media (max-width: 500px) {
+
+        .attendance-card {
+            padding: 12px;
+        }
+
+        .attendance-title {
+            font-size: 22px;
+        }
+
+        .attendance-top-buttons {
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+
+        .attendance-action,
+        #attendanceMode {
+            font-size: 12px;
+            min-height: 40px;
+            padding: 8px;
+        }
+
+        .attendance-stats {
+            gap: 8px;
+        }
+
+        .attendance-stat {
+            padding: 11px 5px;
+            font-size: 14px;
+        }
+
+        .attendance-filter {
+            gap: 6px;
+        }
+
+        .attendance-filter-btn {
+            font-size: 11px;
+            padding: 7px 5px;
+        }
+
+        .attendance-grid {
+            grid-template-columns:
+                repeat(auto-fill, minmax(55px, 1fr));
+
+            gap: 5px;
+        }
+
+        .roll {
+            min-height: 57px;
+            padding: 6px 2px;
+        }
+
+        .student-name {
+            font-size: 6px !important;
+        }
+
+        .student-roll {
+            font-size: 13px !important;
+        }
+
+    }
+</style>
+
+
+<div class="attendance-container">
+
+    <div class="attendance-card">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <h1 class="attendance-title">
+            📋 Attendance
+        </h1>
+
+        <div class="attendance-date">
+            Date:
+            <span id="date" style="margin-left:5px;"></span>
+        </div>
+
+
+        <!-- =====================================================
+             CLASS
+        ====================================================== -->
+
+        <select id="classSelect">
+
+            <option value="">
+                Select Class
+            </option>
+
+            <option>
+                2nd Year CSM - A Sec
+            </option>
+
+            <option>
+                2nd Year CSM - B Sec
+            </option>
+
+            <option>
+                3rd Year CSM - A Sec
+            </option>
+
+            <option>
+                4th Year CSM - A Sec
+            </option>
+
+            <option>
+                4th Year CSM - B Sec
+            </option>
+
+        </select>
+
+
+        <!-- =====================================================
+             TOP ACTIONS
+        ====================================================== -->
+
+        <div class="attendance-top-buttons">
+
+            <button
+                type="button"
+                class="attendance-action load-btn"
+                onclick="loadStudents()">
+
+                Load Students
+
+            </button>
+
+
+            <button
+                type="button"
+                class="attendance-action manage-btn"
+                onclick="showManageClasses()">
+
+                Manage Classes
+
+            </button>
+
+
+            <select id="attendanceMode">
+
+                <option value="absent" selected>
+                    Mark Absentees
+                </option>
+
+                <option value="present">
+                    Mark Presentees
+                </option>
+
+            </select>
+
+
+            <button
+                type="button"
+                class="attendance-action report-btn"
+                onclick="copyReport()">
+
+                Copy Report
+
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             MANAGE CLASSES
+        ====================================================== -->
+
+        <div
+            id="manageBox"
+            style="display:none;"
+        >
+
+            <div class="card">
+
+                <h3>
+                    Your Classes
+                </h3>
+
+                <div id="classList"></div>
+
+
+                <button
+                    type="button"
+                    class="attendance-action load-btn"
+                    onclick="addClass()">
+
+                    + Add New Class
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="attendance-action report-btn"
+                    onclick="exportClasses()">
+
+                    Export Classes (Backup)
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="attendance-action copy-absent-btn"
+                    onclick="importClasses()">
+
+                    Import Classes (Restore)
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             COUNTS
+        ====================================================== -->
+
+        <div class="attendance-stats">
+
+            <div class="attendance-stat present-stat">
+
+                ✅ Present:
+                <span id="presentCount">0</span>
+
+            </div>
+
+
+            <div class="attendance-stat absent-stat">
+
+                ❌ Absent:
+                <span id="absentCount">0</span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             FILTER
+        ====================================================== -->
+
+        <div class="attendance-filter">
+
+            <button
+                type="button"
+                id="showAllBtn"
+                class="attendance-filter-btn active-all"
+                onclick="setStudentFilter('all')">
+
+                ALL
+
+            </button>
+
+
+            <button
+                type="button"
+                id="showPresentBtn"
+                class="attendance-filter-btn"
+                onclick="setStudentFilter('present')">
+
+                🟢 PRESENT
+
+            </button>
+
+
+            <button
+                type="button"
+                id="showAbsentBtn"
+                class="attendance-filter-btn"
+                onclick="setStudentFilter('absent')">
+
+                🔴 ABSENT
+
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             STUDENTS
+        ====================================================== -->
+
+        <div
+            class="attendance-grid"
+            id="grid"
+        ></div>
+
+
+        <!-- =====================================================
+             BOTTOM ACTIONS
+        ====================================================== -->
+
+        <div class="attendance-buttons">
+
+            <button
+                type="button"
+                class="attendance-action load-btn"
+                onclick="copyPresentees()">
+
+                Copy Presentees
+
+            </button>
+
+
+            <button
+                type="button"
+                class="attendance-action copy-absent-btn"
+                onclick="copyAbsentees()">
+
+                Copy Absentees
+
+            </button>
+
+
+            <button
+                type="button"
+                class="attendance-action save-btn"
+                onclick="saveAttendance()">
+
+                💾 Save Attendance
+
+            </button>
+
+
+            <button
+                type="button"
+                class="attendance-action report-btn"
+                onclick="copyReport()">
+
+                Copy Report
+
+            </button>
+
+
+            <button
+                type="button"
+                class="attendance-action report-btn"
+                onclick="sendWhatsApp()">
+
+                Send in WhatsApp
+
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             REPORT
+        ====================================================== -->
+
+        <textarea
+            id="preview"
+            readonly
+            placeholder="Attendance report will appear here..."
+        ></textarea>
+
+    </div>
+
+</div>
+
+
+{% csrf_token %}
+
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const specialStudents = {};
+
+const attendanceAPI = "/api/attendance/";
+
+const csrfToken =
+    document.querySelector(
+        '[name=csrfmiddlewaretoken]'
+    ).value;
+
+
+let currentStudents = [];
+
+const absentSet = new Set();
+const presentSet = new Set();
+
+let studentFilter = "all";
+
+let djangoClasses = [];
+
+let selectedClassId = null;
+
+
+
+/* =========================================================
+   CLASS COUNTS
+========================================================= */
+
+const classStudentCounts = {
+
+    "2nd Year CSM - A Sec": 72,
+
+    "2nd Year CSM - B Sec": 68,
+
+    "3rd Year CSM - A Sec": 72,
+
+    "4th Year CSM - A Sec": 69,
+
+    "4th Year CSM - B Sec": 72
+
+};
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+const today = new Date();
+
+const dd =
+    String(today.getDate()).padStart(2, "0");
+
+const mm =
+    String(today.getMonth() + 1).padStart(2, "0");
+
+const yyyy =
+    today.getFullYear();
+
+
+document.getElementById("date").textContent =
+    `${dd}/${mm}/${yyyy}`;
+
+
+/* =========================================================
+   LOAD DJANGO CLASSES
+========================================================= */
+
+async function loadDjangoClasses() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/attendance-app/classes/"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            console.error(
+                "Error loading classes:",
+                result
+            );
+
+            return;
+
+        }
+
+
+        djangoClasses =
+            result.classes || [];
+
+
+        console.log(
+            "Django classes loaded:",
+            djangoClasses
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Error connecting to Django classes API:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD STUDENTS
+========================================================= */
+
+async function loadStudents() {
+
+    const selected =
+        document.getElementById(
+            "classSelect"
+        ).value;
+
+
+    if (!selected) {
+
+        alert("Please select a class first.");
+
+        return;
+
+    }
+
+
+    const selectedClass =
+        djangoClasses.find(
+            classItem =>
+                classItem.name === selected
+        );
+
+
+    if (!selectedClass) {
+
+        alert(
+            "Class not found in Django."
+        );
+
+        return;
+
+    }
+
+
+    selectedClassId =
+        selectedClass.id;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/attendance-app/students/?class_id=${selectedClassId}`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                "❌ Error loading students: " +
+                (
+                    result.error ||
+                    "Unable to load students"
+                )
+            );
+
+            return;
+
+        }
+
+
+        currentStudents =
+            result.students || [];
+
+
+        /*
+         * Everyone starts PRESENT.
+         *
+         * The set stores students selected
+         * as absent in Mark Absentees mode.
+         */
+
+        absentSet.clear();
+        presentSet.clear();
+
+        studentFilter = "all";
+
+
+        updateFilterButtons();
+
+        renderStudents();
+
+        updateCounts();
+
+
+        console.log(
+            `Loaded ${currentStudents.length} students from Django`
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "❌ Error connecting to Django API"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function setStudentFilter(filter) {
+
+    studentFilter =
+        filter;
+
+
+    updateFilterButtons();
+
+    renderStudents();
+
+}
+
+
+/* =========================================================
+   FILTER BUTTON COLORS
+========================================================= */
+
+function updateFilterButtons() {
+
+    const allBtn =
+        document.getElementById(
+            "showAllBtn"
+        );
+
+
+    const presentBtn =
+        document.getElementById(
+            "showPresentBtn"
+        );
+
+
+    const absentBtn =
+        document.getElementById(
+            "showAbsentBtn"
+        );
+
+
+    allBtn.className =
+        "attendance-filter-btn";
+
+
+    presentBtn.className =
+        "attendance-filter-btn";
+
+
+    absentBtn.className =
+        "attendance-filter-btn";
+
+
+    if (studentFilter === "all") {
+
+        allBtn.classList.add(
+            "active-all"
+        );
+
+    }
+
+
+    if (studentFilter === "present") {
+
+        presentBtn.classList.add(
+            "active-present"
+        );
+
+    }
+
+
+    if (studentFilter === "absent") {
+
+        absentBtn.classList.add(
+            "active-absent"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER STUDENTS
+========================================================= */
+
+function renderStudents() {
+
+    const grid = document.getElementById("grid");
+
+    grid.innerHTML = "";
+
+    const visibleStudents = currentStudents.filter(
+        (student, index) => {
+
+            let status = "unmarked";
+
+            if (absentSet.has(index)) {
+                status = "absent";
+            }
+            else if (presentSet.has(index)) {
+                status = "present";
+            }
+
+            if (studentFilter === "present") {
+                return status === "present";
+            }
+
+            if (studentFilter === "absent") {
+                return status === "absent";
+            }
+
+            return true;
+        }
+    );
+
+
+    if (visibleStudents.length === 0) {
+
+        const empty = document.createElement("div");
+
+        empty.className = "filter-empty";
+
+        if (studentFilter === "present") {
+            empty.textContent = "No presentees.";
+        }
+        else if (studentFilter === "absent") {
+            empty.textContent = "No absentees.";
+        }
+        else {
+            empty.textContent = "Please load students.";
+        }
+
+        grid.appendChild(empty);
+
+        return;
+    }
+
+
+    visibleStudents.forEach(student => {
+
+        const index = currentStudents.indexOf(student);
+
+        const btn = document.createElement("button");
+
+        btn.type = "button";
+
+
+        /*
+         * Determine student status
+         */
+
+        let status = "unmarked";
+
+        if (absentSet.has(index)) {
+            status = "absent";
+        }
+        else if (presentSet.has(index)) {
+            status = "present";
+        }
+
+
+        /*
+         * Color:
+         *
+         * WHITE  = Not marked
+         * RED    = Absent
+         * GREEN  = Present
+         */
+
+        if (status === "absent") {
+            btn.className = "roll absent";
+        }
+        else if (status === "present") {
+            btn.className = "roll present";
+        }
+        else {
+            btn.className = "roll";
+        }
+
+
+        /* =================================================
+           DISPLAY ROLL NUMBER
+        ================================================= */
+
+        let displayRoll;
+
+
+        /*
+         * Special student
+         */
+
+        if (student.roll === "238T1A4214") {
+
+            displayRoll = student.roll;
+
+            btn.style.gridColumn = "span 3";
+
+        }
+
+        /*
+         * Lateral entry
+         */
+
+        else if (student.roll.includes("T5A")) {
+
+            displayRoll =
+                "LE-" +
+                student.roll.slice(-2);
+
+        }
+
+        /*
+         * Normal students
+         */
+
+        else {
+
+            displayRoll =
+                student.roll.slice(-2);
+
+        }
+
+
+        btn.innerHTML = `
+
+            <span class="student-name">
+                ${student.name}
+            </span>
+
+            <span class="student-roll">
+                ${displayRoll}
+            </span>
+
+        `;
+
+
+        /* =================================================
+           CLICK STUDENT
+        ================================================= */
+
+        btn.onclick = function () {
+
+            /*
+             * Mark Absentees
+             */
+
+            const mode =
+                document.getElementById(
+                    "attendanceMode"
+                ).value;
+
+
+            if (mode === "absent") {
+
+                /*
+                 * If already absent,
+                 * remove absent status.
+                 */
+
+                if (absentSet.has(index)) {
+
+                    absentSet.delete(index);
+
+                }
+
+                /*
+                 * Otherwise mark as absent.
+                 */
+
+                else {
+
+                    absentSet.add(index);
+
+                    /*
+                     * Remove present status
+                     * if previously selected.
+                     */
+
+                    presentSet.delete(index);
+
+                }
+
+            }
+
+
+            /*
+             * Mark Presentees
+             */
+
+            else {
+
+                /*
+                 * If already present,
+                 * remove present status.
+                 */
+
+                if (presentSet.has(index)) {
+
+                    presentSet.delete(index);
+
+                }
+
+                /*
+                 * Otherwise mark as present.
+                 */
+
+                else {
+
+                    presentSet.add(index);
+
+                    /*
+                     * Remove absent status
+                     * if previously selected.
+                     */
+
+                    absentSet.delete(index);
+
+                }
+
+            }
+
+
+            /*
+             * Immediately refresh
+             */
+
+            renderStudents();
+
+            updateCounts();
+
+        };
+
+
+        grid.appendChild(btn);
+
+    });
+
+}
+
+
+/* =========================================================
+   UPDATE COUNTS
+========================================================= */
+
+function updateCounts() {
+
+    const cls =
+        document.getElementById(
+            "classSelect"
+        ).value;
+
+
+    const mode =
+        document.getElementById(
+            "attendanceMode"
+        ).value;
+
+
+    let present = 0;
+
+    let absent = 0;
+
+
+    /*
+     * MARK ABSENTEES MODE
+     *
+     * Red = Absent
+     * White = Present
+     */
+
+    if (mode === "absent") {
+
+        absent =
+            absentSet.size;
+
+
+        present =
+            currentStudents.length -
+            absent;
+
+    }
+
+
+    /*
+     * MARK PRESENTEES MODE
+     *
+     * Green = Present
+     * White = Absent
+     */
+
+    else {
+
+        present =
+            presentSet.size;
+
+
+        absent =
+            currentStudents.length -
+            present;
+
+    }
+
+
+    /*
+     * Additional students configured
+     * for the selected class
+     */
+
+    const extraStudents =
+        specialStudents[cls]
+            ? specialStudents[cls].length
+            : 0;
+
+
+    /*
+     * Update Present count
+     */
+
+    document.getElementById(
+        "presentCount"
+    ).textContent =
+        present +
+        extraStudents;
+
+
+    /*
+     * Update Absent count
+     */
+
+    document.getElementById(
+        "absentCount"
+    ).textContent =
+        absent;
+
+
+    /*
+     * Update report preview
+     */
+
+    generatePreview();
+
+}
+
+
+/* =========================================================
+   GET ABSENTEES
+========================================================= */
+
+/* =========================================================
+   GET ABSENTEES
+========================================================= */
+
+function getAbsentees() {
+
+    let regular = [];
+
+    let lateral = [];
+
+    const mode =
+        document.getElementById(
+            "attendanceMode"
+        ).value;
+
+
+    currentStudents.forEach(
+        (student, index) => {
+
+            let isAbsent;
+
+
+            /*
+             * MARK ABSENTEES MODE
+             *
+             * Red students = Absent
+             * White students = Present
+             */
+
+            if (mode === "absent") {
+
+                isAbsent =
+                    absentSet.has(index);
+
+            }
+
+
+            /*
+             * MARK PRESENTEES MODE
+             *
+             * Green students = Present
+             * White students = Absent
+             */
+
+            else {
+
+                isAbsent =
+                    !presentSet.has(index);
+
+            }
+
+
+            if (isAbsent) {
+
+                if (
+                    student.roll.includes(
+                        "T5A"
+                    )
+                ) {
+
+                    lateral.push(
+                        student.roll.slice(-2)
+                    );
+
+                }
+                else {
+
+                    if (
+                        student.roll ===
+                        "238T1A4214"
+                    ) {
+
+                        regular.push(
+                            student.roll
+                        );
+
+                    }
+                    else {
+
+                        regular.push(
+                            student.roll.slice(-2)
+                        );
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    return {
+        regular: regular,
+        lateral: lateral
+    };
+
+}
+
+
+/* =========================================================
+   GET PRESENTEES
+========================================================= */
+
+function getPresentees() {
+
+    let regular = [];
+
+    let lateral = [];
+
+    const mode =
+        document.getElementById(
+            "attendanceMode"
+        ).value;
+
+
+    currentStudents.forEach(
+        (student, index) => {
+
+            let isPresent;
+
+
+            /*
+             * MARK ABSENTEES MODE
+             *
+             * Red students = Absent
+             * White students = Present
+             */
+
+            if (mode === "absent") {
+
+                isPresent =
+                    !absentSet.has(index);
+
+            }
+
+
+            /*
+             * MARK PRESENTEES MODE
+             *
+             * Green students = Present
+             * White students = Absent
+             */
+
+            else {
+
+                isPresent =
+                    presentSet.has(index);
+
+            }
+
+
+            if (isPresent) {
+
+                if (
+                    student.roll.includes(
+                        "T5A"
+                    )
+                ) {
+
+                    lateral.push(
+                        student.roll.slice(-2)
+                    );
+
+                }
+                else {
+
+                    if (
+                        student.roll ===
+                        "238T1A4214"
+                    ) {
+
+                        regular.push(
+                            student.roll
+                        );
+
+                    }
+                    else {
+
+                        regular.push(
+                            student.roll.slice(-2)
+                        );
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    return {
+        regular: regular,
+        lateral: lateral
+    };
+
+}
+
+
+/* =========================================================
+   COPY PRESENTEES
+========================================================= */
+
+async function copyPresentees() {
+
+    const p =
+        getPresentees();
+
+
+    let text =
+        p.regular.join(", ");
+
+
+    if (
+        p.lateral.length
+    ) {
+
+        text +=
+            "\nLE's:- " +
+            p.lateral.join(", ");
+
+    }
+
+
+    if (
+        !text.trim()
+    ) {
+
+        alert(
+            "No presentees found."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+
+        alert(
+            "Presentees copied successfully!\n\n" +
+            text
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+
+        alert(
+            "Unable to copy presentees.\n\n" +
+            "Please copy the roll numbers manually."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY ABSENTEES
+========================================================= */
+
+async function copyAbsentees() {
+
+    const a =
+        getAbsentees();
+
+
+    let text =
+        a.regular.join(", ");
+
+
+    if (
+        a.lateral.length
+    ) {
+
+        text +=
+            "\nLE's:- " +
+            a.lateral.join(", ");
+
+    }
+
+
+    if (
+        !text.trim()
+    ) {
+
+        alert(
+            "No absentees found."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+
+        alert(
+            "Absentees copied successfully!\n\n" +
+            text
+        );
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+
+        alert(
+            "Unable to copy absentees.\n\n" +
+            "Please copy the roll numbers manually."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE ATTENDANCE
+========================================================= */
+
+async function saveAttendance() {
+
+    const cls =
+        document.getElementById(
+            "classSelect"
+        ).value;
+
+
+    if (
+        currentStudents.length === 0
+    ) {
+
+        alert(
+            "Please select class and load students first"
+        );
+
+        return;
+
+    }
+
+
+    if (!selectedClassId) {
+
+        alert(
+            "Class information is not loaded from Django."
+        );
+
+        return;
+
+    }
+
+
+    const mode =
+        document.getElementById(
+            "attendanceMode"
+        ).value;
+
+
+    let presentRollNumbers = [];
+
+    let absentRollNumbers = [];
+
+
+    currentStudents.forEach(
+        (student, index) => {
+
+            let isPresent;
+
+
+            /*
+             * MARK ABSENTEES MODE
+             *
+             * Red = Absent
+             * White = Present
+             */
+
+            if (mode === "absent") {
+
+                isPresent =
+                    !absentSet.has(index);
+
+            }
+
+
+            /*
+             * MARK PRESENTEES MODE
+             *
+             * Green = Present
+             * White = Absent
+             */
+
+            else {
+
+                isPresent =
+                    presentSet.has(index);
+
+            }
+
+
+            if (isPresent) {
+
+                presentRollNumbers.push(
+                    student.roll
+                );
+
+            }
+            else {
+
+                absentRollNumbers.push(
+                    student.roll
+                );
+
+            }
+
+        }
+    );
+
+
+    const today =
+        new Date();
+
+
+    const date =
+        today.getFullYear() +
+        "-" +
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            today.getDate()
+        ).padStart(2, "0");
+
+
+    const data = {
+
+        class_id:
+            selectedClassId,
+
+        date:
+            date,
+
+        present_roll_numbers:
+            presentRollNumbers,
+
+        absent_roll_numbers:
+            absentRollNumbers
+
+    };
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/attendance-app/save/",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            csrfToken
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            data
+                        )
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.message
+        ) {
+
+            alert(
+                "✅ Attendance Saved Successfully\n\n" +
+                "Records Saved: " +
+                result.saved_records
+            );
+
+
+            console.log(
+                result
+            );
+
+        }
+        else {
+
+            alert(
+                "❌ Error: " +
+                (
+                    result.error ||
+                    "Unable to save attendance"
+                )
+            );
+
+
+            console.log(
+                result
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        alert(
+            "❌ Error connecting to Django API"
+        );
+
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+function sendWhatsApp() {
+
+    if (
+        currentStudents.length === 0
+    ) {
+
+        alert(
+            "Please select class and load students first"
+        );
+
+        return;
+
+    }
+
+
+    const report =
+        generateReport();
+
+
+    const whatsappURL =
+        "https://wa.me/?text=" +
+        encodeURIComponent(
+            report
+        );
+
+
+    window.open(
+        whatsappURL,
+        "_blank"
+    );
+
+}
+
+
+/* =========================================================
+   GENERATE REPORT
+========================================================= */
+
+function generateReport() {
+
+    const cls =
+        document.getElementById(
+            "classSelect"
+        ).value;
+
+    const presentees =
+        getPresentees();
+
+    const absentees =
+        getAbsentees();
+
+    const totalStudents =
+        currentStudents.length +
+        (
+            specialStudents[cls]
+                ? specialStudents[cls].length
+                : 0
+        );
+
+    const presenteesCount =
+        presentees.regular.length +
+        presentees.lateral.length;
+
+    let presentText = "";
+
+    if (presentees.regular.length > 0) {
+        presentText +=
+            presentees.regular.join(", ");
+    }
+
+    if (presentees.lateral.length > 0) {
+
+        if (presentText !== "") {
+            presentText += "\n";
+        }
+
+        presentText +=
+            "LE's:- " +
+            presentees.lateral.join(", ");
+    }
+
+    let absentText = "";
+
+    if (absentees.regular.length > 0) {
+        absentText +=
+            absentees.regular.join(", ");
+    }
+
+    if (absentees.lateral.length > 0) {
+
+        if (absentText !== "") {
+            absentText += "\n";
+        }
+
+        absentText +=
+            "LE's:- " +
+            absentees.lateral.join(", ");
+    }
+
+    return `
+*Attendance*
+*Date:* ${dd}/${mm}/${yyyy}
+*Class:* ${cls}
+*Total Students:* ${totalStudents}
+*Presentees:* ${presenteesCount}
+
+*Absentees:* ${
+        absentees.regular.length +
+        absentees.lateral.length
+    }
+${absentText}
+`;
+}
+
+
+/* =========================================================
+   COPY REPORT
+========================================================= */
+
+async function copyReport() {
+
+    const report =
+        generateReport();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            report
+        );
+
+
+        alert(
+            "Attendance report copied"
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "Unable to copy report."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LIVE PREVIEW
+========================================================= */
+
+function generatePreview() {
+
+    if (
+        currentStudents.length === 0
+    ) {
+
+        document.getElementById(
+            "preview"
+        ).value =
+            "Please select a class and click 'Load Students'.";
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "preview"
+    ).value =
+        generateReport();
+
+}
+
+
+/* =========================================================
+   MANAGE CLASSES
+========================================================= */
+
+function showManageClasses() {
+
+    const box =
+        document.getElementById(
+            "manageBox"
+        );
+
+
+    if (
+        box.style.display ===
+        "none"
+    ) {
+
+        box.style.display =
+            "block";
+
+
+        displayClasses();
+
+    }
+    else {
+
+        box.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   DISPLAY CLASSES
+========================================================= */
+
+function displayClasses() {
+
+    const list =
+        document.getElementById(
+            "classList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    /*
+     * Use Django classes instead of
+     * the old standalone students object.
+     */
+
+    djangoClasses.forEach(
+        cls => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.innerHTML = `
+
+                <b>${cls.name}</b>
+
+                <br>
+
+                ${classStudentCounts[cls.name] || 0}
+                students
+
+            `;
+
+
+            list.appendChild(
+                div
+            );
+
+        }
+    );
+
+
+    if (
+        djangoClasses.length === 0
+    ) {
+
+        list.innerHTML =
+            "<p>No classes found.</p>";
+
+    }
+
+}
+
+
+/* =========================================================
+   ADD CLASS
+========================================================= */
+
+function addClass() {
+
+    const name =
+        prompt(
+            "Enter Class Name:"
+        );
+
+
+    if (name) {
+
+        alert(
+            "Classes are now managed through Django.\n\n" +
+            "Please create classes from the Django Admin."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DELETE CLASS
+========================================================= */
+
+function deleteClass(cls) {
+
+    if (
+        confirm(
+            "Delete " +
+            cls +
+            " ?"
+        )
+    ) {
+
+        alert(
+            "Classes are now managed through Django.\n\n" +
+            "Please delete classes from Django Admin."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EDIT CLASS
+========================================================= */
+
+function editClass(cls) {
+
+    alert(
+        "Edit students for " +
+        cls
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT CLASSES
+========================================================= */
+
+function exportClasses() {
+
+    const data =
+        JSON.stringify(
+            djangoClasses
+        );
+
+
+    const blob =
+        new Blob(
+            [data],
+            {
+                type:
+                    "application/json"
+            }
+        );
+
+
+    const a =
+        document.createElement(
+            "a"
+        );
+
+
+    a.href =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    a.download =
+        "classes_backup.json";
+
+
+    a.click();
+
+}
+
+
+/* =========================================================
+   IMPORT CLASSES
+========================================================= */
+
+function importClasses() {
+
+    alert(
+        "Import option can be added using file upload."
+    );
+
+}
+
+
+/* =========================================================
+   ATTENDANCE MODE
+========================================================= */
+
+const attendanceMode =
+    document.getElementById(
+        "attendanceMode"
+    );
+
+
+function updateModeColor() {
+
+    if (
+        attendanceMode.value ===
+        "absent"
+    ) {
+
+        attendanceMode.style.background =
+            "#ffebee";
+
+        attendanceMode.style.color =
+            "#d32f2f";
+
+        attendanceMode.style.borderColor =
+            "#f44336";
+
+    }
+    else {
+
+        attendanceMode.style.background =
+            "#e8f5e9";
+
+        attendanceMode.style.color =
+            "#2e7d32";
+
+        attendanceMode.style.borderColor =
+            "#4caf50";
+
+    }
+
+}
+
+
+/* =========================================================
+   MODE CHANGE
+========================================================= */
+
+attendanceMode.addEventListener(
+    "change",
+    function () {
+
+        updateModeColor();
+
+        loadStudents();
+
+    }
+);
+
+
+/* =========================================================
+   CLASS CHANGE
+========================================================= */
+
+document
+    .getElementById("classSelect")
+    .addEventListener(
+        "change",
+        function () {
+
+            /*
+             * Clear old students when
+             * changing class.
+             */
+
+            currentStudents = [];
+
+            absentSet.clear();
+
+            studentFilter = "all";
+
+            selectedClassId = null;
+
+            updateFilterButtons();
+
+            document.getElementById(
+                "grid"
+            ).innerHTML = "";
+
+            document.getElementById(
+                "presentCount"
+            ).textContent = "0";
+
+            document.getElementById(
+                "absentCount"
+            ).textContent = "0";
+
+            generatePreview();
+
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+updateModeColor();
+
+updateFilterButtons();
+
+loadDjangoClasses();
+
+generatePreview();
+
+</script>
+
+{% endblock %}

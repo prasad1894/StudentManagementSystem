@@ -1,0 +1,123 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Task Management{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Task Management</h1>
+        <p>Manage tasks, priorities, deadlines, and progress.</p>
+    </div>
+
+    <a href="{% url 'task_create' %}" class="btn btn-success">
+        + Add Task
+    </a>
+</div>
+
+<div class="card">
+
+    <div class="table-container">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for task in tasks %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ task.title }}</strong>
+                    </td>
+
+                    <td>
+                        {{ task.class_section }}
+                    </td>
+
+                    <td>
+                        {% if task.priority == 'HIGH' %}
+                            <span class="status-absent">High</span>
+
+                        {% elif task.priority == 'MEDIUM' %}
+                            <span class="status-pending">Medium</span>
+
+                        {% else %}
+                            <span class="status-present">Low</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if task.status == 'TODO' %}
+                            <span class="status-pending">
+                                To Do
+                            </span>
+
+                        {% elif task.status == 'IN_PROGRESS' %}
+                            <span class="status-pending">
+                                In Progress
+                            </span>
+
+                        {% else %}
+                            <span class="status-present">
+                                Completed
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ task.due_date|date:"d/m/Y" }}
+                    </td>
+
+                    <td>
+                        {{ task.created_at|date:"M d, Y" }}
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a href="{% url 'task_edit' task.id %}">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'task_delete' task.id %}"
+                               style="background: var(--danger-light); color: #991b1b;">
+                                Delete
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="7">
+                        <div class="alert alert-info" style="margin: 0;">
+                            No tasks found.
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

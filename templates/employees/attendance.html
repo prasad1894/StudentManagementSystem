@@ -1,0 +1,227 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+
+<style>
+    .attendance-home {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .attendance-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .attendance-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .attendance-header h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+    }
+
+    .attendance-header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+    }
+
+    .attendance-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .attendance-option {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 28px 24px;
+        transition: 0.2s ease;
+    }
+
+    .attendance-option:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+    }
+
+    .attendance-icon {
+        font-size: 42px;
+        margin-bottom: 14px;
+    }
+
+    .attendance-option h2 {
+        margin: 0 0 8px;
+        color: var(--text);
+        font-size: 21px;
+    }
+
+    .attendance-option p {
+        margin: 0 0 20px;
+        color: var(--muted);
+        line-height: 1.5;
+        font-size: 14px;
+        flex-grow: 1;
+    }
+
+    /* Real clickable button */
+
+    .attendance-button {
+        display: inline-block;
+        width: fit-content;
+        padding: 10px 16px;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .daily-button {
+        background: var(--primary);
+    }
+
+    .period-button {
+        background: #6d28d9;
+    }
+
+    .attendance-button:hover {
+        opacity: 0.9;
+    }
+
+    .attendance-info {
+        margin-top: 25px;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+
+        .attendance-card {
+            padding: 20px;
+        }
+
+        .attendance-options {
+            grid-template-columns: 1fr;
+        }
+
+    }
+</style>
+
+
+<div class="attendance-home">
+
+    <div class="attendance-card">
+
+        <!-- HEADER -->
+
+        <div class="attendance-header">
+
+            <h1>📋 Attendance</h1>
+
+            <p>
+                Select the type of attendance you want to manage.
+            </p>
+
+        </div>
+
+
+        <!-- ATTENDANCE OPTIONS -->
+
+        <div class="attendance-options">
+
+
+            <!-- =============================================
+                 OVERALL DAY ATTENDANCE
+            ============================================== -->
+
+            <div class="attendance-option">
+
+                <div class="attendance-icon">
+                    📅
+                </div>
+
+                <h2>
+                    Overall Day Attendance
+                </h2>
+
+                <p>
+                    Mark the complete-day attendance of students
+                    for a selected class and date.
+                </p>
+
+                <a
+                    href="{% url 'attendance_app' %}"
+                    class="attendance-button daily-button"
+                >
+                    Open Overall Attendance →
+                </a>
+
+            </div>
+
+
+            <!-- =============================================
+                 PERIOD-WISE ATTENDANCE
+            ============================================== -->
+
+            <div class="attendance-option">
+
+                <div class="attendance-icon">
+                    📚
+                </div>
+
+                <h2>
+                    Period-wise Attendance
+                </h2>
+
+                <p>
+                    Mark attendance for a specific subject,
+                    class, and date.
+                </p>
+
+                <a
+                    href="{% url 'period_attendance' %}"
+                    class="attendance-button period-button"
+                >
+                    Open Period Attendance →
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- INFORMATION -->
+
+        <div class="attendance-info">
+
+            <strong>Attendance structure:</strong>
+
+            Overall Day Attendance is used for complete-day
+            attendance, while Period-wise Attendance is used
+            for individual subjects or periods.
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

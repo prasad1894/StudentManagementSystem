@@ -1,0 +1,411 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Student Management System</h1>
+        <p>Welcome, {{ user.username }} ({{ user.profile.role }})</p>
+    </div>
+</div>
+
+{% if assigned_classes %}
+<div class="card">
+    <h2>My Assigned Classes</h2>
+
+    <div class="quick-links">
+        {% for class_section in assigned_classes %}
+            <span class="btn-secondary" style="padding: 8px 12px; border-radius: 6px;">
+                {{ class_section }}
+            </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+<!-- =========================
+     MANAGEMENT STATISTICS
+     ========================= -->
+
+<div class="dashboard-cards">
+
+    <div class="dashboard-card">
+        <h3>Active Students</h3>
+
+        <div class="number">
+            {{ total_students }}
+        </div>
+
+        <a href="{% url 'student_list' %}" class="btn">
+            View Students
+        </a>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Total Tasks</h3>
+
+        <div class="number">
+            {{ total_tasks }}
+        </div>
+
+        <a href="{% url 'task_list' %}" class="btn">
+            View Tasks
+        </a>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Completed Tasks</h3>
+
+        <div class="number">
+            {{ completed_tasks }}
+        </div>
+
+        <a href="{% url 'task_list' %}" class="btn btn-success">
+            View Tasks
+        </a>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Pending Leaves</h3>
+
+        <div class="number">
+            {{ pending_leaves }}
+        </div>
+
+        <a href="{% url 'leave_list' %}" class="btn btn-warning">
+            View Leaves
+        </a>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     ATTENDANCE STATISTICS
+     ========================= -->
+
+<div class="dashboard-cards">
+
+    <div class="dashboard-card">
+        <h3>Attendance Records</h3>
+
+        <div class="number">
+            {{ total_attendance }}
+        </div>
+
+        <a href="{% url 'attendance_history' %}" class="btn">
+            View History
+        </a>
+
+        <a href="{% url 'attendance' %}" class="btn btn-success" style="margin-top: 8px;">
+            Mark Attendance
+        </a>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Present</h3>
+
+        <div class="number">
+            {{ present_count }}
+        </div>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Absent</h3>
+
+        <div class="number">
+            {{ absent_count }}
+        </div>
+    </div>
+
+
+    <div class="dashboard-card">
+        <h3>Attendance Percentage</h3>
+
+        <div class="number">
+            {{ attendance_percentage|floatformat:1 }}%
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =========================
+     RECENT INFORMATION
+     ========================= -->
+
+<div class="card">
+
+    <h2>Recent Tasks</h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Class</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for task in recent_tasks %}
+
+                <tr>
+
+                    <td>{{ task.title }}</td>
+
+                    <td>{{ task.class_section }}</td>
+
+                    <td>
+
+                        {% if task.status == 'COMPLETED' %}
+
+                            <span class="status-present">
+                                Completed
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-pending">
+                                {{ task.get_status_display }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="3">
+                        No tasks found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <h2>Recent Leave Requests</h2>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Roll Number</th>
+                    <th>Class</th>
+                    <th>Leave Type</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for leave in recent_leaves %}
+
+                <tr>
+
+                    <td>{{ leave.student.name }}</td>
+
+                    <td>{{ leave.student.roll_number }}</td>
+
+                    <td>{{ leave.student.class_section }}</td>
+
+                    <td>{{ leave.get_leave_type_display }}</td>
+
+                    <td>
+
+                        {% if leave.status == 'PENDING' %}
+
+                            <span class="status-pending">
+                                Pending
+                            </span>
+
+                        {% elif leave.status == 'APPROVED' %}
+
+                            <span class="status-present">
+                                Approved
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-absent">
+                                Rejected
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5">
+                        No recent leave requests.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <h2>Recent Attendance</h2>
+
+    {% if recent_attendance %}
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Class</th>
+                    <th>Roll Number</th>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for record in recent_attendance %}
+
+                <tr>
+
+                    <td>
+                        {{ record.date|date:"d/m/Y" }}
+                    </td>
+
+                    <td>
+                        {{ record.student.class_section }}
+                    </td>
+
+                    <td>
+                        {{ record.student.roll_number }}
+                    </td>
+
+                    <td>
+                        {{ record.student.name }}
+                    </td>
+
+                    <td>
+                        {{ record.subject.code }}
+                    </td>
+
+                    <td>
+
+                        {% if record.status == 'PRESENT' %}
+
+                            <span class="status-present">
+                                Present
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-absent">
+                                Absent
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+        <p>No attendance records found.</p>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================
+     ADMINISTRATION
+     ========================= -->
+
+{% if request.user.profile.role == 'ADMIN' %}
+
+<div class="card">
+
+    <h2>Administration</h2>
+
+    <div class="quick-links">
+
+        <a href="{% url 'faculty_list' %}" class="btn">
+            Manage Faculty
+        </a>
+
+        <a href="{% url 'class_list' %}" class="btn">
+            Manage Classes
+        </a>
+
+        <a href="{% url 'student_list' %}" class="btn btn-success">
+            Manage Students
+        </a>
+
+        <a href="{% url 'subject_list' %}" class="btn">
+            Manage Subjects
+        </a>
+
+        <a href="{% url 'admin:index' %}" class="btn btn-secondary">
+            Django Admin
+        </a>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
